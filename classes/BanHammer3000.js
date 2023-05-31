@@ -18,11 +18,14 @@ class BanHammer3000 {
         this.eventManager = new EventManager(this);
         this.commandManager = new CommandManager(this);
         this.webhookManager = new WebhookManager(this);
+
+        // Token
+        this.token = process.env.TOKEN;
     }
 
     login() {
         console.log('Logging in...');
-        return this.client.login(process.env.TOKEN);
+        return this.client.login(this.token);
     }
 }
 

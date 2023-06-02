@@ -13,7 +13,7 @@ class WebhookManager {
         this.webhooksMap = new Map();
     }
 
-    loadPrivateWebhooks() {
+    async loadPrivateWebhooks() {
 
     }
 
@@ -32,7 +32,7 @@ class WebhookManager {
         });
     }
 
-    getWebhookWithChannelId(channelID) {
+    async getWebhookWithChannelId(channelID) {
         let wh = await this.webhooksMap.get(channelID);
         if (!wh) {
             const channel = await client.channels.cache.get(channelID);

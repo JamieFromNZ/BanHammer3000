@@ -6,7 +6,7 @@ module.exports = {
         if (await interaction.isChatInputCommand()) {
             // If slash command
             // Get command path with name
-            const path = await this.commandPathsMap.get(interaction.commandName);
+            const path = await bot.commandManager.commandPathsMap.get(interaction.commandName);
             const command = await require('../' + path);
 
             if (!command) {

@@ -5,7 +5,7 @@ class EventManager {
         this.b = bot;
     }
 
-    load() {
+    async load() {
         const eventsPath = './events';
         const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
@@ -13,9 +13,9 @@ class EventManager {
         for (const file of eventFiles) {
             const event = require('../events/' + file);
             if (event.once) {
-                this.b.once(event.name, (...args) => event.execute(...args, this.b));
+                this.b.client.once(event.name, (...args) => event.execute(...args, this.b));
             } else {
-                this.b.on(event.name, (...args) => event.execute(...args, this.b));
+                this.b.client.on(event.name, (...args) => event.execute(...args, this.b));
             }
         }
     }

@@ -18,6 +18,9 @@
   "homepage": "https://github.com/JamieFromNZ/BanHammer3000#readme",
   "dependencies": {
     "discord.js": "^14.11.0",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "fs": "^0.0.1-security"
   }
 }

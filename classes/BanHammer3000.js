@@ -7,8 +7,8 @@ require('dotenv').config();
 // Classes for the bot
 const EventManager = require('./EventManager.js');
 const CommandManager = require('./CommandManager.js');
-const WebhookManager = require('./WebhookManager.js');
 const MessageHandler = require('./MessageHandler.js');
+const KeepAlive = require('./KeepAlive.js');
 
 class BanHammer3000 {
     constructor() {
@@ -18,8 +18,8 @@ class BanHammer3000 {
         // Initialise main managers for bot
         this.eventManager = new EventManager(this);
         this.commandManager = new CommandManager(this);
-        this.webhookManager = new WebhookManager(this);
         this.messageHandler = new MessageHandler(this);
+        this.keepAlive = new KeepAlive(this);
 
         // Token
         this.token = process.env.TOKEN;

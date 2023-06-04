@@ -3,7 +3,7 @@ const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('disc
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('help')
-        .setDescription('help'),
+        .setDescription('How to use the bot, commands, etc.'),
 
     async execute(interaction, bot) {
         let text = " ";

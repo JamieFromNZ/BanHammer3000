@@ -1,4 +1,8 @@
-const BanHammer3000 = require('./classes/BanHammer3000');
+//const BanHammer3000 = require('./classes/BanHammer3000');
+const dashboardInit = require('./dashboard/app');
+dashboardInit();
+
+/*
 
 const bot = new BanHammer3000();
 bot.login().then(() => {
@@ -12,4 +16,7 @@ bot.client.on('ready', () => {
     bot.commandManager.loadCmds(bot);
     bot.eventManager.load(bot);
     bot.keepAlive.start(bot);
+    dashboardInit(bot);
 });
+
+*/

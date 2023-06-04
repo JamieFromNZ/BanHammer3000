@@ -3,7 +3,7 @@ const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('disc
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('ban')
-        .setDescription('BAN')
+        .setDescription('Ban a user from your server.')
         .addUserOption(option =>
             option.setName('victim')
                 .setDescription('Who can I squash for you today?')

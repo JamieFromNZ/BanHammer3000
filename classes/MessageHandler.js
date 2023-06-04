@@ -15,6 +15,10 @@ class MessageHandler {
             embed.setImage(content.image);
         }
 
+        if (content.title) {
+            embed.setTitle(content.title);
+        }
+
         return await interaction.reply({ embeds: [embed], ephemeral: content.ephemeral });
     }
 }

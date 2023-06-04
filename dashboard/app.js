@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const path = require('path');
 const axios = require('axios');
 const app = express();
@@ -17,12 +18,39 @@ async function dashboardInit(bot) {
     // Public folder contains js, css, images
     app.use(express.static(path.join(__dirname, 'public')));
 
+    //
+    app.use(session({
+        secret: process.env.SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: { secure: 'auto' }
+    }));
+
     // Routes
-    app.get('/', (req, res) => {
-        res.render('index', {
-            isLoggedIn: false
-        });
+    app.get('/', async (req, res) => {
+        let user = null;
+        const isLoggedIn = !!req.session.accessToken;
+    
+        if (isLoggedIn) {
+            try {
+                const response = await axios.get('https://discord.com/api/users/@me', {
+                    headers: {
+                        authorization: `Bearer ${req.session.accessToken}`
+                    }
+                });
+    
+                user = response.data;
+                user.avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+            } catch (error) {
+                console.error(error);
+                user = null;
+            }
+        }
+    
+        res.render('index', { isLoggedIn, user });
     });
+    
+    
 
     app.get('/dashboard', (req, res) => {
         res.render('dashboard');
@@ -31,9 +59,9 @@ async function dashboardInit(bot) {
     const clientId = '1113355752350957578';
     const clientSecret = process.env.CLIENT_SECRET;
     const redirectUri = 'http://localhost:3000/auth/discord/callback';
+    const scope = 'identify%20guilds';
 
     app.get('/auth/discord', (req, res) => {
-        const scope = 'identify%20gulids';
         res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}`);
     });
 
@@ -44,8 +72,7 @@ async function dashboardInit(bot) {
             client_secret: clientSecret,
             grant_type: 'authorization_code',
             redirect_uri: redirectUri,
-            code: code,
-            scope: 'identify email'
+            code: code
         };
 
         try {
@@ -55,16 +82,16 @@ async function dashboardInit(bot) {
                 }
             });
 
-            // The access token is available here: response.data.access_token
-            // Use the access token to make requests to the Discord API
+            req.session.accessToken = response.data.access_token;
+            req.session.refreshToken = response.data.refresh_token;
+            req.session.expiresIn = response.data.expires_in;
 
-            res.send('Logged in!');
+            res.redirect('/');
         } catch (error) {
             console.error(error);
             res.status(500).send('Authentication failed');
         }
     });
-
 
     // Listen on port 3000
     app.listen(3000, () => {

@@ -1,7 +1,20 @@
 <%- include("partials/header", { isLoggedIn: isLoggedIn, user: user }) %>
 
-<body>
-    
-</body>
+<div class="container">
+    <h1>Welcome, <%= user.username %>!</h1>
+    <img src="<%= user.avatarURL %>" alt="User Avatar">
+
+    <h2>Guild: <%= guild.name %></h2>
+
+    <h3>Bot Settings</h3>
+    <form method="POST" action="/dashboard/<%= guild.id %>/settings">
+        <!-- Include your bot settings here. For example: -->
+        <div class="form-group">
+            <label for="prefix">Command Prefix</label>
+            <input type="text" id="prefix" name="prefix" class="form-control" value="<%= botSettings.prefix %>">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </form>
+</div>
 
 <%- include('./partials/footer.ejs') %>

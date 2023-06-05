@@ -15,6 +15,9 @@ async function dashboardInit(bot) {
     // being rendered res.render()
     app.set('views', path.join(__dirname, 'views'));
 
+    // So I keep the bot object
+    app.bot = bot;
+
     // Set template html thingy to EJS
     app.set('view engine', 'ejs');
 

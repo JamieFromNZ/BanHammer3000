@@ -1,3 +1,11 @@
 * {
     font-family:  'Courier New', Courier, monospace;
 }
+
+body {
+    background-color: #f8f9fa;
+}
+.container {
+    max-width: 960px;
+    margin-top: 2rem;
+}

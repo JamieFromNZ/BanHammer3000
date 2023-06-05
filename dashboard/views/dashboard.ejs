@@ -1,0 +1,11 @@
+<%- include("partials/header", { isLoggedIn: isLoggedIn, user: user }) %>
+
+<body>
+    <% guilds.forEach(guild => { %>
+        <form action="/dashboard/<%= guild.id %>" method="GET">
+            <button type="submit" class="btn btn-outline-dark"><%= guild.name %></button>
+        </form>
+    <% }); %>
+</body>
+
+<%- include('./partials/footer.ejs') %>

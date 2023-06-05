@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const ensureAuthenticated = require('./middleware/ensureAuthenticated');
 const path = require('path');
 const axios = require('axios');
 const app = express();
@@ -30,7 +31,7 @@ async function dashboardInit(bot) {
     app.get('/', async (req, res) => {
         let user = null;
         const isLoggedIn = !!req.session.accessToken;
-    
+
         if (isLoggedIn) {
             try {
                 const response = await axios.get('https://discord.com/api/users/@me', {
@@ -38,7 +39,7 @@ async function dashboardInit(bot) {
                         authorization: `Bearer ${req.session.accessToken}`
                     }
                 });
-    
+
                 user = response.data;
                 user.avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
             } catch (error) {
@@ -46,15 +47,40 @@ async function dashboardInit(bot) {
                 user = null;
             }
         }
-    
+
         res.render('index', { isLoggedIn, user });
     });
-    
-    
 
-    app.get('/dashboard', (req, res) => {
-        res.render('dashboard');
+    // Use the ensureAuthenticated middleware to check if the person is abelt do view the ting
+    app.get('/dashboard', ensureAuthenticated, async (req, res) => {
+        let guilds = [];
+        try {
+            const response = await axios.get('https://discord.com/api/users/@me/guilds', {
+                headers: {
+                    authorization: `Bearer ${req.session.accessToken}`
+                }
+            });
+
+            guilds = response.data;
+        } catch (error) {
+            console.error(error);
+        }
+
+        // We only want the guilds where the user has perms so filter out the guilds where the user doesn't have admin or manage srvr
+        guilds = guilds.filter(guild => (guild.permissions & 0x8) !== 0);
+
+        res.render('dashboard', { guilds });
     });
+
+    app.get('/dashboard/:guildId', ensureAuthenticated, async (req, res) => {
+        const guildId = req.params.guildId;
+    
+        // You can now use the guildId to fetch server-specific data
+        // Note that you may not have the necessary permissions to access this data depending on the user's role in the server
+    
+        // For demonstration purposes, we'll just render the guildId
+        res.render('server', { guildId });
+    });    
 
     const clientId = '1113355752350957578';
     const clientSecret = process.env.CLIENT_SECRET;

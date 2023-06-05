@@ -1,9 +1,18 @@
 <%- include("partials/header", { isLoggedIn: isLoggedIn, user: user }) %>
 
+<div class="container">
+    <h1>Welcome, <%= user.username %>!</h1>
+    <img src="<%= user.avatarURL %>" alt="User Avatar">
+
     <% guilds.forEach(guild => { %>
-        <form action="/dashboard/<%= guild.id %>" method="GET">
-            <button type="submit" class="btn btn-outline-dark"><%= guild.name %></button>
-        </form>
-    <% }); %>
+        <% if(guild.botIsInGuild) { %>
+            <form action="/dashboard/<%= guild.id %>" method="GET">
+                <button class="btn btn-success"><%= guild.name %></button>
+            </form>
+        <% } else { %>
+            <a href="https://discord.com/api/oauth2/authorize?client_id=1113355752350957578&permissions=permissionsInt&scope=bot&guild_id=<%= guild.id %>" class="btn btn-danger"><%= guild.name %></a>
+        <% } %>
+    <% }) %>
+</div>
 
 <%- include('./partials/footer.ejs') %>

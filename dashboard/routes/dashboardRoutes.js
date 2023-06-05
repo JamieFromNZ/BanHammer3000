@@ -12,6 +12,9 @@ router.get('/dashboard', ensureAuthenticated, fetchUser, async (req, res) => {
     let user = req.session.user;
     const isLoggedIn = !!req.session.accessToken;
 
+    // get the guilds the bot is in
+    let botGuilds = req.app.bot.client.guilds.cache.map(guild => guild.id);
+
     // Get user's guild data
     try {
         const response = await axios.get('https://discord.com/api/users/@me/guilds', {
@@ -25,9 +28,13 @@ router.get('/dashboard', ensureAuthenticated, fetchUser, async (req, res) => {
         console.error(error);
     }
 
+    // Filter only guilds where user has perms
     guilds = guilds.filter(guild => (guild.permissions & 0x8) !== 0);
-    
-    res.render('dashboard', { guilds, isLoggedIn, user }); 
+
+    // Add if the bot is in the guild or not to each guild obj
+    guilds = guilds.map(guild => ({ ...guild, botIsInGuild: botGuilds.includes(guild.id) }));
+
+    res.render('dashboard', { guilds, isLoggedIn, user });
 });
 
 router.get('/dashboard/:guildId', ensureAuthenticated, fetchUser, async (req, res) => {

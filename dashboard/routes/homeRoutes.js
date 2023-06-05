@@ -7,18 +7,21 @@ router.get('/', async (req, res) => {
     const isLoggedIn = !!req.session.accessToken;
 
     if (isLoggedIn) {
-        try {
-            const response = await axios.get('https://discord.com/api/users/@me', {
-                headers: {
-                    authorization: `Bearer ${req.session.accessToken}`
-                }
-            });
+        if (!req.session.user) {
+            // Get user data
+            try {
+                const response = await axios.get('https://discord.com/api/users/@me', {
+                    headers: {
+                        authorization: `Bearer ${req.session.accessToken}`
+                    }
+                });
 
-            user = response.data;
-            user.avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-        } catch (error) {
-            console.error(error);
-            user = null;
+                req.session.user = response.data;
+                req.session.user.avatarURL = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+                user = req.session.user;
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
 

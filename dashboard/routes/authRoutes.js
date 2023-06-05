@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
+// Utils and stuff
+require('dotenv').config();
+
 const clientId = '1113355752350957578';
 const clientSecret = process.env.CLIENT_SECRET;
 const redirectUri = 'http://localhost:3000/auth/discord/callback';
 const scope = 'identify%20guilds';
-
-// Utils and stuff
-require('dotenv').config();
 
 router.get('/auth/discord', (req, res) => {
     res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${scope}`);

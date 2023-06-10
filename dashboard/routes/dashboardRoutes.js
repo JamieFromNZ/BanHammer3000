@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
+// Utils and stuff
+require('dotenv').config();
+
 // Middleware
 const ensureAuthenticated = require('../middleware/ensureAuthenticated');
 const fetchUser = require('../middleware/fetchUser');
@@ -38,15 +41,13 @@ router.get('/dashboard', ensureAuthenticated, fetchUser, async (req, res) => {
 });
 
 router.get('/dashboard/:guildId', ensureAuthenticated, fetchUser, async (req, res) => {
-    // Get guild object with id
+    // Get guild object with id by sending request
     const guildId = req.params.guildId;
-    console.log(req.app);
     let guild = await req.app.bot.client.guilds.cache.get(guildId);
-
     let user = req.session.user;
     const isLoggedIn = !!req.session.accessToken;
 
-    res.render('server', { user, isLoggedIn, guild });
+    await res.render('server', { user, isLoggedIn, guild });
 });
 
 module.exports = router;

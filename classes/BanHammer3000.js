@@ -9,6 +9,7 @@ const EventManager = require('./EventManager.js');
 const CommandManager = require('./CommandManager.js');
 const MessageHandler = require('./MessageHandler.js');
 const KeepAlive = require('./KeepAlive.js');
+const DatabaseManager = require('./DatabaseManager.js');
 
 class BanHammer3000 {
     constructor() {
@@ -18,6 +19,7 @@ class BanHammer3000 {
         // Initialise main managers for bot
         this.eventManager = new EventManager(this);
         this.commandManager = new CommandManager(this);
+        this.databaseManager = new DatabaseManager(process.env.MONGO_URI, this);
         this.messageHandler = new MessageHandler(this);
         this.keepAlive = new KeepAlive(this);
 

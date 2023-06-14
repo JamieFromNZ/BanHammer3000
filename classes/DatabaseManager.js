@@ -41,8 +41,13 @@ class DatabaseManager {
                     streak: streak,
                     lastActiveDate: Date.now()
                 }
-            }
+            },
+            { new: true }
         );
+
+        // Update the cache with the updated user
+        this.cacheManager.set(userId, updatedUser);
+
         console.log(`User ${userId} updated in the database`);
     }
 
@@ -80,8 +85,13 @@ class DatabaseManager {
                 $set: {
                     levellingEnabled: levellingEnabled
                 }
-            }
+            },
+            { new: true }
         );
+
+        // Update the cache with the updated guild
+        this.cacheManager.set(guildId, updatedGuild);
+
         console.log(`Guild ${guildId} updated in the database`);
     }
 

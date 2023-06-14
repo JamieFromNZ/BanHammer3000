@@ -4,6 +4,11 @@ module.exports = {
     name: Events.MessageCreate,
     async execute(message, bot) {
         if (message.author.bot) return;
+        let guild = await bot.databaseManager.getGuild(message.guild.id);
+
+        // Handle levelling
+        // Check if guild has levelling enabled
+
         await bot.databaseManager.getUser(message.author.id).then(user => {
             if (user) {
                 let currentDate = new Date();

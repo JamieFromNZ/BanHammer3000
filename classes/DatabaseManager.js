@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
+
 const User = require('../schemas/User.js');
+const Guild = require('../schemas/Guild.js');
+
+const CacheManager = require('./CacheManager');
 
 class DatabaseManager {
     constructor(connectionString, bot) {
         this.connectionString = connectionString;
+        this.cacheManager = new CacheManager(); // class within class within class
     }
 
     async connect() {
@@ -42,7 +47,19 @@ class DatabaseManager {
     }
 
     async getUser(userId) {
-        const user = await User.findOne({ userId: userId });
+        // First, try to get the user from the cache
+        let user = this.cacheManager.get(userId);
+
+        // If the user is not in the cache, fetch them from the database
+        if (!user) {
+            user = await User.findOne({ userId: userId });
+
+            // If the user was found in the database, add them to the cache
+            if (user) {
+                this.cacheManager.set(userId, user);
+            }
+        }
+
         return user;
     }
 
@@ -69,7 +86,16 @@ class DatabaseManager {
     }
 
     async getGuild(guildId) {
-        const guild = await Guild.findOne({ guildId: guildId });
+        let guild = this.cacheManager.get(guildId);
+
+        if (!guild) {
+            guild = await Guild.findOne({ guildId: guildId });
+
+            if (guild) {
+                this.cacheManager.set(guildId, guild);
+            }
+        }
+
         return guild;
     }
 }

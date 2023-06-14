@@ -14,7 +14,7 @@ const DatabaseManager = require('./DatabaseManager.js');
 class BanHammer3000 {
     constructor() {
         // Initialize Discord client for bot
-        this.client = new Client({ intents: [GatewayIntentBits.Guilds] });
+        this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 
         // Initialise main managers for bot
         this.eventManager = new EventManager(this);

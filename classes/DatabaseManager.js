@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const User = require('../schemas/User.js');
+const Member = require('../schemas/Member.js');
 const Guild = require('../schemas/Guild.js');
 
 const CacheManager = require('./CacheManager');
@@ -23,17 +23,24 @@ class DatabaseManager {
         }
     }
 
-    async addUser(userId) {
-        const user = new User({
-            userId: userId
+    async addMember(userId, guildId) {
+        const member = new Member({
+            userId: userId,
+            guildId: guildId
         });
 
-        await user.save();
-        console.log(`User ${userId} added to the database`);
+        await member.save();
+
+        // Create a key for cache with userid AND guildid (since member)
+        const cacheKey = `${userId}-${guildId}`;
+        this.cacheManager.set(cacheKey, member);  // add to cache
+        
+        console.log(`member ${userId} of ${guildId} added to the database`);
+        return member;
     }
 
-    async updateUser(userId, level, streak) {
-        await User.updateOne(
+    async updateMember(userId, level, streak) {
+        await Member.updateOne(
             { userId: userId },
             {
                 $set: {
@@ -46,26 +53,33 @@ class DatabaseManager {
         );
 
         // Update the cache with the updated user
-        this.cacheManager.set(userId, updatedUser);
+        this.cacheManager.set(userId, updatedMember);
 
-        console.log(`User ${userId} updated in the database`);
+        console.log(`Member ${userId} updated in the database`);
     }
 
-    async getUser(userId) {
+    // If the member is not cached
+    async getMember(userId, guildId) {
         // First, try to get the user from the cache
-        let user = this.cacheManager.get(userId);
+        const cacheKey = `${userId}-${guildId}`;
+        let member = this.cacheManager.get(cacheKey);
 
-        // If the user is not in the cache, fetch them from the database
-        if (!user) {
-            user = await User.findOne({ userId: userId });
+        // If the member is not in the cache, fetch them from the database
+        if (!member) {
+            member = await Member.findOne({ userId: userId, guildId: guildId });
 
             // If the user was found in the database, add them to the cache
-            if (user) {
-                this.cacheManager.set(userId, user);
+            if (member) {
+                this.cacheManager.set(cacheKey, member);
+                return await member;
+            } else {
+                // if member doesn't exist in db
+                member = await this.addMember(userId, guildId);
+                return member;
             }
+        } else {
+            return member;
         }
-
-        return user;
     }
 
     async addGuild(guildId, levellingEnabled = false) {
@@ -75,7 +89,9 @@ class DatabaseManager {
         });
 
         await guild.save();
+        this.cacheManager.set(guildId, guild);  // Add to cache
         console.log(`Guild ${guildId} added to the database`);
+        return guild;
     }
 
     async updateGuild(guildId, levellingEnabled) {
@@ -97,16 +113,23 @@ class DatabaseManager {
 
     async getGuild(guildId) {
         let guild = this.cacheManager.get(guildId);
+        console.log(guild);
 
+        // If the guild is not in the cache
         if (!guild) {
             guild = await Guild.findOne({ guildId: guildId });
 
             if (guild) {
                 this.cacheManager.set(guildId, guild);
+                return await guild;
+            } else {
+                // if not found in database, create
+                guild = await this.addGuild(guildId);
+                return guild;
             }
+        } else {
+            return guild;
         }
-
-        return guild;
     }
 }
 

@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
+const MemberSchema = new mongoose.Schema({
     userId: {
       type: String,
       required: true,
       unique: true
+    },
+    guildId: {
+        type: String,
+        required: true,
+        unique: true
     },
     level: {
       type: Number,
@@ -24,4 +29,4 @@ const UserSchema = new mongoose.Schema({
     }
   });  
 
-module.exports = mongoose.model('users', UserSchema);
+module.exports = mongoose.model('members', MemberSchema);

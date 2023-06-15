@@ -34,13 +34,13 @@ class DatabaseManager {
         // Create a key for cache with userid AND guildid (since member)
         const cacheKey = `${userId}-${guildId}`;
         this.cacheManager.set(cacheKey, member);  // add to cache
-        
+
         console.log(`member ${userId} of ${guildId} added to the database`);
         return member;
     }
 
     async updateMember(userId, level, streak) {
-        await Member.updateOne(
+        let updatedMember = await Member.updateOne(
             { userId: userId },
             {
                 $set: {
@@ -89,13 +89,15 @@ class DatabaseManager {
         });
 
         await guild.save();
+
         this.cacheManager.set(guildId, guild);  // Add to cache
+        
         console.log(`Guild ${guildId} added to the database`);
         return guild;
     }
 
     async updateGuild(guildId, levellingEnabled) {
-        await Guild.updateOne(
+        let updatedGuild = await Guild.updateOne(
             { guildId: guildId },
             {
                 $set: {
@@ -113,7 +115,6 @@ class DatabaseManager {
 
     async getGuild(guildId) {
         let guild = this.cacheManager.get(guildId);
-        console.log(guild);
 
         // If the guild is not in the cache
         if (!guild) {

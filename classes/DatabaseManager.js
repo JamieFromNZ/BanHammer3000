@@ -39,26 +39,31 @@ class DatabaseManager {
         return member;
     }
 
-    async updateMember(userId, level, streak) {
-        let updatedMember = await Member.updateOne(
-            { userId: userId },
+    async updateMember(userId, guildId, xp, streak) {
+        let updatedMember = await Member.findOneAndUpdate(
+            { userId: userId, guildId: guildId },
             {
                 $set: {
-                    level: level,
+                    xp: xp,
                     streak: streak,
                     lastActiveDate: Date.now()
                 }
             },
-            { new: true }
+            { new: true, useFindAndModify: false }
         );
+    
+        // Update the cache with the updated member
+        const cacheKey = `${userId}-${guildId}`;
+        if (updatedMember) {
+            this.cacheManager.set(cacheKey, updatedMember);
+            console.log(`Member ${userId} updated in the database`);
+        } else {
+            console.log(`Member ${userId} not found in the database`);
+        }
+    
+        return updatedMember;
+    }    
 
-        // Update the cache with the updated user
-        this.cacheManager.set(userId, updatedMember);
-
-        console.log(`Member ${userId} updated in the database`);
-    }
-
-    // If the member is not cached
     async getMember(userId, guildId) {
         // First, try to get the user from the cache
         const cacheKey = `${userId}-${guildId}`;
@@ -70,12 +75,12 @@ class DatabaseManager {
 
             // If the user was found in the database, add them to the cache
             if (member) {
-                this.cacheManager.set(cacheKey, member);
+                this.cacheManager.set(cacheKey, await member);
                 return await member;
             } else {
-                // if member doesn't exist in db
+                // if member doesn't exist in db, add it
                 member = await this.addMember(userId, guildId);
-                return member;
+                return await member;
             }
         } else {
             return member;

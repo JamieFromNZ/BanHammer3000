@@ -43,11 +43,36 @@ router.get('/dashboard', ensureAuthenticated, fetchUser, async (req, res) => {
 router.get('/dashboard/:guildId', ensureAuthenticated, fetchUser, async (req, res) => {
     // Get guild object with id by sending request
     const guildId = req.params.guildId;
+    // Get Discord Guild
     let guild = await req.app.bot.client.guilds.cache.get(guildId);
+    // Get Guild info from db
+    let guildDB = await req.app.bot.databaseManager.getGuild(guildId);
+    // Get user
     let user = req.session.user;
+    // if the user is logged in
     const isLoggedIn = !!req.session.accessToken;
 
-    await res.render('server', { user, isLoggedIn, guild });
+    await res.render('server', { user, isLoggedIn, guild, guildDB });
+});
+
+router.post('/dashboard/:guildId/settings', ensureAuthenticated, fetchUser, async (req, res) => {
+    // Get guild id from params
+    const guildId = req.params.guildId;
+
+    // Get levellingEnabled from form data
+    const levellingEnabled = req.body.myRadio === 'true';
+
+    console.log(levellingEnabled, guildId);
+
+    // Update guild settings in database
+    try {
+        await req.app.bot.databaseManager.updateGuild(guildId, levellingEnabled);
+    } catch (error) {
+        console.error('Error updating settings:', error);
+    }
+
+    // Redirect back to the settings page
+    res.redirect(`/dashboard/${guildId}`);
 });
 
 module.exports = router;

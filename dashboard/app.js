@@ -24,6 +24,12 @@ async function dashboardInit(bot) {
     // Public folder contains js, css, images
     app.use(express.static(path.join(__dirname, 'public')));
 
+    // parse application/x-www-form-urlencoded
+    app.use(express.urlencoded({ extended: false }));
+
+    // parse application/json
+    app.use(express.json());
+
     // Setting up session
     app.use(session({
         secret: process.env.SECRET,

@@ -10,6 +10,7 @@ const CommandManager = require('./CommandManager.js');
 const MessageHandler = require('./MessageHandler.js');
 const KeepAlive = require('./KeepAlive.js');
 const DatabaseManager = require('./DatabaseManager.js');
+const LevellingManager = require('./LevellingManager.js');
 
 class BanHammer3000 {
     constructor() {
@@ -22,6 +23,7 @@ class BanHammer3000 {
         this.databaseManager = new DatabaseManager(process.env.MONGO_URI, this);
         this.messageHandler = new MessageHandler(this);
         this.keepAlive = new KeepAlive(this);
+        this.levellingManager = new LevellingManager(this);
 
         // Token
         this.token = process.env.TOKEN;

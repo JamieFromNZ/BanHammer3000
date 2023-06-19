@@ -6,14 +6,19 @@ module.exports = {
         .setDescription('Displays the leaderboard for a guild.'),
 
     async execute(interaction, bot) {
-        const leaderboard = await bot.databaseManager.getLeaderboard(interaction.guild.id);
+        const leaderboard = await bot.databaseManager.getLeaderboardForGuild(interaction.guild.id, 'xp');
 
         // Create a string that represents the leaderboard.
         let leaderboardString = '';
         for (let i = 0; i < leaderboard.length; i++) {
-            leaderboardString += `${i + 1}. <@${leaderboard[i].userId}>: ${leaderboard[i].xp}\n`;
+            leaderboardString += `\`${i + 1}.\` <@${leaderboard[i].userId}>: Level **${bot.levellingManager.getLevelWithXP(leaderboard[i].xp)}** with a streak of ${leaderboard[i].streak} days.\n`;
         }
 
-        return await interaction.reply(leaderboardString);
+        return await bot.messageHandler.replyInteraction({
+            text: leaderboardString,
+            ephemeral: false
+        },
+        interaction
+        );
     },
 };

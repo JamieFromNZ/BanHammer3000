@@ -22,6 +22,14 @@ const MemberSchema = new mongoose.Schema({
     lastActiveDate: {
       type: Date,
       default: Date.now
+    },
+    invites: {
+      type: Number,
+      default: 0
+    },
+    warnings: {
+      type: Array,
+      default: []
     }
   });
 

@@ -139,16 +139,13 @@ class DatabaseManager {
     }
 
     // returns filtered list of members in order of xp
-    async getLeaderboard(guildId) {
+    async getLeaderboardForGuild(guildId, type) {
         const allMembers = await Member.find(
             { guildId: guildId }
         );
-        console.log(allMembers);
 
         // Finally, we'll sort the array in descending order by xp and limit to the top 10
-        const leaderboard = allMembers.sort((a, b) => b.xp - a.xp).slice(0, 10);
-
-        console.log("lb ", leaderboard);
+        const leaderboard = allMembers.sort((a, b) => b[type] - a[type]).slice(0, 10);
 
         return leaderboard;
     }

@@ -7,7 +7,7 @@ class MessageHandler {
 
     async replyInteraction(content, interaction) {
         const embed = new EmbedBuilder()
-            .setColor('#0099ff')
+            .setColor('#f7d4f7')
             .setDescription(content.text)
             .setTimestamp();
 
@@ -19,7 +19,11 @@ class MessageHandler {
             embed.setTitle(content.title);
         }
 
-        return await interaction.reply({ embeds: [embed], ephemeral: content.ephemeral });
+        if (content.thumbnail) {
+            embed.setThumbnail(content.thumbnail);
+        }
+
+        return await interaction.reply({ embeds: [embed], ephemeral: content.ephemeral, files: content.files });
     }
 }
 

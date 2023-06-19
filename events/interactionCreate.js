@@ -4,6 +4,14 @@ module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction, bot) {
         if (await interaction.isChatInputCommand()) {
+            // If the command was executed in DMs
+            if (!interaction.guild) return await bot.messageHandler.replyInteraction({
+                text: `For now, you can only run this command in a guild.`,
+                ephemeral: false
+            },
+                interaction
+            );
+
             // If slash command
             // Get command path with name
             const path = await bot.commandManager.commandPathsMap.get(interaction.commandName);

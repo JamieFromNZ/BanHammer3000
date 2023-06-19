@@ -1,7 +1,7 @@
-const BanHammer3000 = require('./classes/BanHammer3000');
+const FloraBlitz = require('./classes/FloraBlitz');
 const dashboardInit = require('./dashboard/app');
 
-const bot = new BanHammer3000();
+const bot = new FloraBlitz();
 bot.login().then(() => {
     // Log in
     console.log('Logged in.');

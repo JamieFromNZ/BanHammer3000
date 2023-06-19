@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,7 +13,7 @@ module.exports = {
 
         return await bot.messageHandler.replyInteraction(
             {
-                title: "Hey! My name is BanHammer3000, what's up?",
+                title: "Hey! My name is FloraBlitz, what's up?",
                 text: text
             },
             interaction

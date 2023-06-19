@@ -12,10 +12,9 @@ module.exports = {
                 interaction
             );
 
-            // If slash command
-            // Get command path with name
-            const path = await bot.commandManager.commandPathsMap.get(interaction.commandName);
-            const command = await require('../' + path);
+            console.log(interaction.options);
+            console.log(await interaction.options.getSubcommand());
+            const command = await require('../commands/' + interaction.commandName + '/' + await interaction.options.getSubcommand(false) + '.js');
 
             if (!command) {
                 console.error(`No command matching ${interaction.commandName} was found.`);
@@ -29,7 +28,7 @@ module.exports = {
                 if (interaction.replied || interaction.deferred) {
                     await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
                 } else {
-                    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+                    return await bot.messageHandler.replyInteraction({ text: 'There was an error while executing this command!', ephemeral: true }, interaction);
                 }
             }
         } else {

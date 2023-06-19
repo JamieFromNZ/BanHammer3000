@@ -12,7 +12,7 @@ const KeepAlive = require('./KeepAlive.js');
 const DatabaseManager = require('./DatabaseManager.js');
 const LevellingManager = require('./LevellingManager.js');
 
-class BanHammer3000 {
+class FloraBlitz {
     constructor() {
         // Initialize Discord client for bot
         this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
@@ -35,4 +35,4 @@ class BanHammer3000 {
     }
 }
 
-module.exports = BanHammer3000;
+module.exports = FloraBlitz;

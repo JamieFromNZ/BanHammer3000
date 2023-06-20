@@ -3,12 +3,10 @@ const mongoose = require('mongoose');
 const Member = require('../schemas/Member.js');
 const Guild = require('../schemas/Guild.js');
 
-const CacheManager = require('./CacheManager');
-
 class DatabaseManager {
     constructor(connectionString, bot) {
         this.connectionString = connectionString;
-        this.cacheManager = new CacheManager(); // class within class within class
+        this.cacheManager = new Map();
     }
 
     async connect() {

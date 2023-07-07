@@ -14,5 +14,7 @@ bot.client.on('ready', () => {
     bot.eventManager.load(bot);
     bot.keepAlive.start(bot);
     bot.databaseManager.connect();
-    dashboardInit(bot);
+    //dashboardInit(bot);
+
+    bot.giveawayManager.checkFinished();
 });

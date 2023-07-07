@@ -10,6 +10,7 @@ const CommandManager = require('./CommandManager.js');
 const KeepAlive = require('./KeepAlive.js');
 const DatabaseManager = require('./DatabaseManager.js');
 const GiveawayManager = require('./GiveawayManager');
+const EmbedHelper = require('./EmbedHelper');
 const CONSTANTS = require('../constants.json');
 
 class FloraBlitz {
@@ -23,6 +24,7 @@ class FloraBlitz {
         this.databaseManager = new DatabaseManager(process.env.MONGO_URI, this);
         this.keepAlive = new KeepAlive(this);
         this.giveawayManager = new GiveawayManager(this);
+        this.embedHelper = new EmbedHelper(this);
 
         this.CONSTANTS = CONSTANTS;
 

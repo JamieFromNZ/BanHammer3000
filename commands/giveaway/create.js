@@ -22,7 +22,7 @@ module.exports = {
 
         // Guard: Check if member has perms to run cmd
         if (!await interaction.member.permissions.has(PermissionsBitField.ManageGuild)) {
-            let emb = await bot.embedManager.getBaseEmbed();
+            let emb = await bot.embedManager.getErrorEmbed();
             emb.setTitle("Error")
             emb.setDescription("You require the \`MANAGE_SERVER\` or \``ADMINISTRATOR\` permissions to run this command.");
 
@@ -30,10 +30,13 @@ module.exports = {
         }
 
         // Guard 1: Channel type must be a text channel.
-        if (channel.type !== 0) return await interaction.reply({
-            content: "Channel must be type `GUILD_TEXT`",
-            ephemeral: true
-        });
+        if (channel.type !== 0) {
+            let emb = await bot.embedManager.getErrorEmbed();
+            emb.setTitle("Error")
+            emb.setDescription("Channel type must be text channel.");
+
+            return await interaction.reply({ embeds: [emb], ephemeral: true });
+        }
 
         let endsAt = new Date('2000-01-01'); // Set endsAt to be a date to be noticed later, must be date to parse into mongodb
 

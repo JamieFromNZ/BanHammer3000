@@ -9,7 +9,7 @@ module.exports = {
     async execute(interaction, bot) {
         // Guard: Check if member has perms to run cmd
         if (!await interaction.member.permissions.has(PermissionsBitField.ManageGuild)) {
-            let emb = await bot.embedManager.getBaseEmbed();
+            let emb = await bot.embedManager.getErrorEmbed();
             emb.setTitle("Error")
             emb.setDescription("You require the \`MANAGE_SERVER\` or \``ADMINISTRATOR\` permissions to run this command.");
             

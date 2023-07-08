@@ -13,6 +13,11 @@ module.exports = {
                 await bot.databaseManager.removeAllObjects("giveaway");
                 await message.reply("Done");
             }
+
+            if (message.content === "!testpoj") {
+                await bot.client.emit('guildMemberAdd', message.member, bot);
+                await message.reply("Done");
+            }
         }
     }
 };

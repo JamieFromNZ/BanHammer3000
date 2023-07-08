@@ -12,6 +12,14 @@ class EmbedHelper {
 
         return await emb;
     }
+
+    async getErrorEmbed() {
+        let emb = new EmbedBuilder() 
+        .setTimestamp()
+        .setColor("f24d55")
+
+        return await emb;
+    }
 }
 
 module.exports = EmbedHelper;

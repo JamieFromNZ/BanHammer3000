@@ -9,6 +9,10 @@ const GuildSchema = new mongoose.Schema({
     levellingEnabled: {
         type: Boolean,
         default: false
+    },
+    pojChannels: {
+        type: [String],
+        default: []
     }
 });
 

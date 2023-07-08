@@ -25,8 +25,8 @@ module.exports = {
             let emb = await bot.embedManager.getBaseEmbed();
             emb.setTitle("Error")
             emb.setDescription("You require the \`MANAGE_SERVER\` or \``ADMINISTRATOR\` permissions to run this command.");
-            
-            return await interaction.reply( { embeds: [emb], ephemeral: true } );
+
+            return await interaction.reply({ embeds: [emb], ephemeral: true });
         }
 
         // Guard 1: Channel type must be a text channel.
@@ -51,18 +51,8 @@ module.exports = {
             endsAt.setMilliseconds(endsAt.getMilliseconds() + durationInMs);
         }
 
-        // The string to put all info in to send as giveaway message
-        let descriptionString = `React with :tada: below to enter.\nWinner(s): **${winners}**`;
-
-        // Add the duration to the description string
-        if (duration) {
-            descriptionString = descriptionString + `\nEnds <t:${Math.floor(endsAt.getTime() / 1000)}:R>`;
-        }
-
-        // Add the requirements to the description string
-        if (requirements) {
-            descriptionString = descriptionString + `\n\n${requirements}`
-        }
+        // Create the updated description string
+        let descriptionString = await bot.giveawayManager.getDescriptionString(endsAt, requirements, winners);
 
         // tell user gw is being started
         await interaction.reply({

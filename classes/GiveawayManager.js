@@ -5,7 +5,7 @@ class GiveawayManager {
         this.bot = bot;
         this.checkFinished = this.checkFinished.bind(this);
     }
-    
+
     async endGiveaway(messageId) {
         await Giveaway.deleteOne()(
             { messageId: messageId },
@@ -80,7 +80,7 @@ class GiveawayManager {
             let message = await channel.messages.fetch(giveaway.messageId);
 
             await message.reply(
-                `:frown: Nobody entered the giveaway`
+                `☹️ Nobody entered the giveaway`
             );
         }
 
@@ -124,6 +124,25 @@ class GiveawayManager {
         // call fn again after 10 minutes
         //setTimeout(this.checkFinished, 10 * 60 * 1000);
     }
+
+    async getDescriptionString(endsAt, requirements, winnerCount) {
+        // Create the updated description string
+        let descriptionString = `React with 🎉 below to enter.\nWinner(s): **${winnerCount}**`;
+
+        // Add the duration to the description string
+        if (endsAt) {
+            descriptionString += `\nEnds <t:${Math.floor(endsAt.getTime() / 1000)}:R>`;
+        }
+
+        // Add the requirements to the description string
+        if (requirements) {
+            descriptionString += `\n\n${requirements}`;
+        }
+
+        return descriptionString;
+    }
 }
 
 module.exports = GiveawayManager;
+
+// TODO: Make check finished 10 minutes instead, or maybe 5

@@ -33,5 +33,7 @@ module.exports = {
         let message = await channel.messages.fetch(messageId);
 
         await message.edit({ content: "Giveaway over." });
+
+        await interaction.reply( { content: 'Giveaway ended successfully.', ephemeral: true } );
     }
 };

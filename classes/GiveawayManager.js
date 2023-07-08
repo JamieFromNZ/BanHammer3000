@@ -48,10 +48,11 @@ class GiveawayManager {
 
         //
         if (entries.length > 0) {
-            for (let i = 0; i < (await giveaway).winnerCount; i++) {
-                let winner = await this.getWinner(await entries); // get winner
+            let winnerCount = Math.min(await giveaway.winnerCount, entries.length); // Don't try to select more winners than entries
+            for (let i = 0; i < winnerCount; i++) {
+                let winner = await this.getWinner(entries); // get winner
                 console.log("got winner", (await winner).id);
-
+    
                 /* do checks */
                 if ((await winner).bot == false) { // check if the winner is a bot (most likely the client)
                     if (winners.includes((await winner))) { // check if winner already exists
@@ -130,7 +131,7 @@ class GiveawayManager {
         let descriptionString = `React with 🎉 below to enter.\nWinner(s): **${winnerCount}**`;
 
         // Add the duration to the description string
-        if (endsAt) {
+        if (endsAt.toISOString().split('T')[0] !== '2000-01-01') {
             descriptionString += `\nEnds <t:${Math.floor(endsAt.getTime() / 1000)}:R>`;
         }
 

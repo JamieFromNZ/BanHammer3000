@@ -7,7 +7,10 @@ const Giveaway = require('../schemas/Giveaway.js');
 class DatabaseManager {
     constructor(connectionString, bot) {
         this.connectionString = connectionString;
-        this.cacheManager = new Map();
+
+        this.memberCacheManager = new Map();
+        this.guildCacheManager = new Map();
+        this.giveawayCacheManager = new Map();
     }
 
     async connect() {
@@ -34,7 +37,7 @@ class DatabaseManager {
 
                 // Create a key for cache with userid AND guildid (since member)
                 const cacheKey = `${parameters.userId}-${parameters.guildId}`;
-                this.cacheManager.set(cacheKey, member);  // add to cache
+                this.memberCacheManager.set(cacheKey, member);  // add to cache
 
                 console.log(`Member ${parameters.userId} of ${parameters.guildId} added to the database`);
                 return member;
@@ -46,7 +49,7 @@ class DatabaseManager {
 
                 await guild.save();
 
-                this.cacheManager.set(parameters.guildId, guild);  // Add to cache
+                this.guildCacheManager.set(parameters.guildId, guild);  // Add to cache
 
                 console.log(`Guild ${parameters.guildId} added to the database`);
                 return guild;
@@ -65,7 +68,7 @@ class DatabaseManager {
 
                 await giveaway.save();
 
-                this.cacheManager.set(parameters.messageId, giveaway);  // Add to cache
+                this.giveawayCacheManager.set(parameters.messageId, giveaway);  // Add to cache
 
                 console.log(`Giveaway ${parameters.messageId} added to the database`);
                 return giveaway;
@@ -90,7 +93,7 @@ class DatabaseManager {
                 // Update the cache with the updated member
                 const cacheKey = `${parameters.userId}-${parameters.guildId}`;
                 if (updatedMember) {
-                    this.cacheManager.set(cacheKey, updatedMember);
+                    this.memberCacheManager.set(cacheKey, updatedMember);
                     console.log(`Member ${parameters.userId} updated in the database`);
                 } else {
                     console.log(`Member ${parameters.userId} not found in the database`);
@@ -108,7 +111,7 @@ class DatabaseManager {
                 );
 
                 // Update the cache with the updated guild
-                this.cacheManager.set(parameters.guildId, updatedGuild);
+                this.guildCacheManager.set(parameters.guildId, updatedGuild);
 
                 console.log(`Guild ${parameters.guildId} updated in the database`);
                 return updatedGuild;
@@ -122,7 +125,7 @@ class DatabaseManager {
                     { new: true, useFindAndModify: false }
                 );
 
-                this.cacheManager.set(parameters.messageId, updatedGiveaway);
+                this.giveawayCacheManager.set(parameters.messageId, updatedGiveaway);
                 console.log(`Giveaway ${parameters.messageId} updated in the database`);
                 return updatedGiveaway;
         }
@@ -133,7 +136,7 @@ class DatabaseManager {
             case "member":
                 // First, try to get the user from the cache
                 const cacheKey = `${parameters.userId}-${parameters.guildId}`;
-                let member = this.cacheManager.get(cacheKey);
+                let member = this.memberCacheManager.get(cacheKey);
 
                 // If the member is not in the cache, fetch them from the database
                 if (!member) {
@@ -141,7 +144,7 @@ class DatabaseManager {
 
                     // If the user was found in the database, add them to the cache
                     if (member) {
-                        this.cacheManager.set(cacheKey, await member);
+                        this.memberCacheManager.set(cacheKey, await member);
                         return await member;
                     } else {
                         // if member doesn't exist in db, add it
@@ -153,14 +156,14 @@ class DatabaseManager {
                 }
 
             case "guild":
-                let guild = this.cacheManager.get(parameters.guildId);
+                let guild = this.guildCacheManager.get(parameters.guildId);
 
                 // If the guild is not in the cache
                 if (!guild) {
                     guild = await Guild.findOne({ guildId: parameters.guildId });
-        
+
                     if (guild) {
-                        this.cacheManager.set(parameters.guildId, guild);
+                        this.guildCacheManager.set(parameters.guildId, guild);
                         return await guild;
                     } else {
                         // if not found in database, create
@@ -172,13 +175,100 @@ class DatabaseManager {
                 }
 
             case "giveaway":
-                let giveaway = await this.cache.get(messageId);
+                let giveaway = await this.giveawayCacheManager.get(parameters.messageId);
                 // If there is no giveaway found, fetch from db and add to cache
                 if (!giveaway) {
                     giveaway = await Giveaway.findOne({ messageId: parameters.messageId });
-                    await this.cache.set(parameters.messageId, await giveaway)
+                    await this.giveawayCacheManager.set(parameters.messageId, await giveaway)
                 }
                 return giveaway;
+        }
+    }
+
+    async removeObject(objectType, parameters) {
+        switch (objectType) {
+            case "member":
+                const memberCacheKey = `${parameters.userId}-${parameters.guildId}`;
+                const removedMember = await Member.findOneAndDelete({
+                    userId: parameters.userId,
+                    guildId: parameters.guildId
+                });
+
+                if (removedMember) {
+                    this.memberCacheManager.delete(memberCacheKey);
+                    console.log(`Member ${parameters.userId} of ${parameters.guildId} removed from the database and cache`);
+                } else {
+                    console.log(`Member ${parameters.userId} of ${parameters.guildId} not found in the database`);
+                }
+
+                return removedMember;
+
+            case "guild":
+                const removedGuild = await Guild.findOneAndDelete({
+                    guildId: parameters.guildId
+                });
+
+                if (removedGuild) {
+                    this.guildCacheManager.delete(parameters.guildId);
+                    console.log(`Guild ${parameters.guildId} removed from the database and cache`);
+                } else {
+                    console.log(`Guild ${parameters.guildId} not found in the database`);
+                }
+
+                return removedGuild;
+
+            case "giveaway":
+                const removedGiveaway = await Giveaway.findOneAndDelete({
+                    messageId: parameters.messageId
+                });
+
+                if (removedGiveaway) {
+                    this.giveawayCacheManager.delete(parameters.messageId);
+                    console.log(`Giveaway ${parameters.messageId} removed from the database and cache`);
+                } else {
+                    console.log(`Giveaway ${parameters.messageId} not found in the database`);
+                }
+
+                return removedGiveaway;
+
+            default:
+                console.log(`Invalid objectType: ${objectType}`);
+                return null;
+        }
+    }
+
+    async removeAllObjects(objectType) {
+        switch (objectType) {
+            case "member":
+                const removedMembers = await Member.deleteMany({});
+                console.log(`Removed ${removedMembers.deletedCount} members from the database`);
+
+                // Remove all member entries from cache
+                this.memberCacheManager.forEach(key => this.memberCacheManager.delete(key));
+
+                return removedMembers;
+
+            case "guild":
+                const removedGuilds = await Guild.deleteMany({});
+                console.log(`Removed ${removedGuilds.deletedCount} guilds from the database`);
+
+                // Remove all guild entries from cache
+                this.guildCacheManager.forEach(key => this.guildCacheManager.delete(key));
+
+                return removedGuilds;
+
+            case "giveaway":
+                const removedGiveaways = await Giveaway.deleteMany({});
+                console.log(`Removed ${removedGiveaways.deletedCount} giveaways from the database`);
+
+                // Remove all giveaway entries from cache
+                this.giveawayCacheManager.forEach(key => this.giveawayCacheManager.delete(key));
+
+                return removedGiveaways;
+
+            default:
+                console.log(`Invalid objectType: ${objectType}`);
+                return null;
         }
     }
 

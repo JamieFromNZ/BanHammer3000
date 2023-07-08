@@ -16,7 +16,7 @@ const CONSTANTS = require('../constants.json');
 class FloraBlitz {
     constructor() {
         // Initialize Discord client for bot
-        this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
+        this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
         // Initialise main managers for bot
         this.eventManager = new EventManager(this);

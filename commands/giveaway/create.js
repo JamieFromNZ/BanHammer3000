@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, CommandInteractionOptionResolver } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const ms = require('ms');
 
 module.exports = {
@@ -9,7 +9,9 @@ module.exports = {
         .addStringOption(option => option.setName('prize').setDescription('The prize for the giveaway').setRequired(true))
         .addIntegerOption(option => option.setName('winners').setDescription('The number of winners').setRequired(true))
         .addStringOption(option => option.setName('duration').setDescription('Duration (1s, 2m, 3h, 4d)').setRequired(false))
-        .addStringOption(option => option.setName('requirements').setDescription('Requirements to be displayed on embed').setRequired(false)),
+        .addStringOption(option => option.setName('requirements').setDescription('Requirements to be displayed on embed').setRequired(false))
+        .setDefaultMemberPermissions(PermissionsBitField.ManageGuild)
+        .setDMPermission(false),
 
     async execute(interaction, bot) {
         const channel = interaction.options.getChannel('channel');
@@ -17,6 +19,15 @@ module.exports = {
         const duration = interaction.options.getString('duration');
         const winners = interaction.options.getInteger('winners');
         const requirements = interaction.options.getString('requirements');
+
+        // Guard: Check if member has perms to run cmd
+        if (!await interaction.member.permissions.has(PermissionsBitField.ManageGuild)) {
+            let emb = await bot.embedManager.getBaseEmbed();
+            emb.setTitle("Error")
+            emb.setDescription("You require the \`MANAGE_SERVER\` or \``ADMINISTRATOR\` permissions to run this command.");
+            
+            return await interaction.reply( { embeds: [emb], ephemeral: true } );
+        }
 
         // Guard 1: Channel type must be a text channel.
         if (channel.type !== 0) return await interaction.reply({
@@ -72,6 +83,3 @@ module.exports = {
         await bot.databaseManager.addObject("giveaway", { messageId: msg.id, userId: interaction.user.id, channelId: channel.id, guildId: interaction.guild.id, prize: prize, winnerCount: winners, endsAt: endsAt, members: 0 });
     }
 };
-
-
-// TODO: Check for perms

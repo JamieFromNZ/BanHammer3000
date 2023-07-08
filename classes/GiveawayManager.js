@@ -1,7 +1,8 @@
+const Giveaway = require('../schemas/Giveaway.js');
+
 class GiveawayManager {
     constructor(bot) {
         this.bot = bot;
-        this.cache = new Map(); // Cache for giveaways
         this.checkFinished = this.checkFinished.bind(this);
     }
     
@@ -13,17 +14,19 @@ class GiveawayManager {
         console.log(`Giveaway ${messageId} ended in the database`);
     }
 
+    // TODO: Here, the length thing is pribably inefficient if tehre are no giveaways at all? dunno
+    // Maybe make a databaesManager function for this instead
     async getGiveaways() {
         // First, try to get the giveaways from the cache
-        let giveaways = Array.from(this.cache.values())
+        let giveaways = Array.from(this.bot.databaseManager.giveawayCacheManager.values());
 
         // If the giveaways are not in the cache, fetch them from the database, this shouldn't happen often
-        if (!giveaways) {
+        if (giveaways.length === 0) {
             // firstly find from DB
             giveaways = await Giveaway.find();
             // secondly, add all giveaways to cache so we don't have to do this again
             giveaways.forEach(async (giveaway) => {
-                this.cache.set(giveaway.messageId, giveaway);
+                this.bot.databaseManager.giveawayCacheManager.set(giveaway.messageId, giveaway);
             });
         }
 
@@ -37,25 +40,21 @@ class GiveawayManager {
         return winner;
     }
 
-    async endGiveaway(giveaway, bot) {
-        let entries = this.getEntries((await giveaway).channelId, (await giveaway).messageId);
-        console.log(await entries);
+    async endGiveaway(giveaway) {
+        let entries = await this.getEntries((await giveaway).channelId, (await giveaway).messageId);
 
         let winners = [];
         let winnersList = " "
 
-        // ensure length is not zero
-        if (!(await entries).length === 0) {
+        //
+        if (entries.length > 0) {
             for (let i = 0; i < (await giveaway).winnerCount; i++) {
-                console.log("looping through winners");
-                let winner = this.getWinner(await entries); // get winner
+                let winner = await this.getWinner(await entries); // get winner
                 console.log("got winner", (await winner).id);
 
                 /* do checks */
                 if ((await winner).bot == false) { // check if the winner is a bot (most likely the client)
-                    console.log("winner isn't bot", (await winner).id);
                     if (winners.includes((await winner))) { // check if winner already exists
-                        console.log("winner is already on array", winner.id);
                         i = i - 1; // make i one less so it does this loop again
                     } else {
                         console.log("winner valid", (await winner).id);
@@ -84,6 +83,9 @@ class GiveawayManager {
                 `:frown: Nobody entered the giveaway`
             );
         }
+
+        // Remove giveaway from database
+        await this.bot.databaseManager.removeObject("giveaway", { messageId: giveaway.messageId });
     }
 
     async getEntries(channelId, messageId) {
@@ -92,13 +94,12 @@ class GiveawayManager {
         let reactions = await message.reactions.cache.first().users.fetch();
         reactions = await reactions.toJSON();
 
-        return (await reactions).filter(member => member.bot == true);
+        return (await reactions).filter(member => member.bot == false);
     }
 
     async checkFinished(bot) {
         console.log('checking if finished');
         let giveaways = await this.getGiveaways();
-        console.log(giveaways);
 
         if (giveaways) {
             if ((giveaways).length !== 0) {
@@ -112,9 +113,6 @@ class GiveawayManager {
                     if (!isJanuaryFirst2000) {
                         if (new Date() > giveaway.endsAt) {
                             console.log("gw ended");
-
-                            // Handle giveaway end logic
-
                             await this.endGiveaway(giveaway, bot);
                         }
                     }

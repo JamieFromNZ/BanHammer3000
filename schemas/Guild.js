@@ -6,12 +6,12 @@ const GuildSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    levellingEnabled: {
-        type: Boolean,
-        default: false
-    },
     pojChannels: {
         type: [String],
+        default: []
+    },
+    embeds: {
+        type: Array,
         default: []
     }
 });

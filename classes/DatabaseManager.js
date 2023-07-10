@@ -162,12 +162,12 @@ class DatabaseManager {
                 if (!guild) {
                     guild = await Guild.findOne({ guildId: parameters.guildId });
 
-                    if (guild) {
+                    if (await guild) {
                         this.guildCacheManager.set(parameters.guildId, guild);
                         return await guild;
                     } else {
                         // if not found in database, create
-                        guild = await this.addObject("guild", parameters.guildId);
+                        guild = await this.addObject("guild", { guildId: parameters.guildId });
                         return guild;
                     }
                 } else {

@@ -10,6 +10,9 @@ const GuildSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    welcomeMsg: {
+        type: Array
+    },
     embeds: {
         type: Array,
         default: []

@@ -4,14 +4,14 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('send')
         .setDescription('Send a custom embed')
-        .setDMPermission(true)
+        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionsBitField.ManageGuild)
         .addStringOption(option => option.setName('name').setDescription('Name of the embed').setRequired(true)),
 
     async execute(interaction, bot) {
         // Guard: Check if member has perms to run cmd
         if (!await interaction.member.permissions.has(PermissionsBitField.ManageGuild)) {
-            let emb = await bot.embedManager.getErrorEmbed();
+            let emb = await bot.embedHelper.getErrorEmbed();
             emb.setTitle("Error");
             emb.setDescription("You require the \`MANAGE_SERVER\` or \``ADMINISTRATOR\` permissions to run this command.");
 
@@ -29,7 +29,7 @@ module.exports = {
             return await interaction.reply(`Embed with name \`${embedName}\` not found.`);
         }
 
-        await interaction.reply({ content: 'Sent! c:' });
+        await interaction.reply({ content: 'Sent! c:', ephemeral: true });
 
         return await interaction.channel.send({ embeds: [embedData] });
     },

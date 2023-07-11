@@ -15,7 +15,7 @@ module.exports = {
     async execute(interaction, bot) {
         // Check if member has appropriate perms]
         if (!await interaction.member.permissions.has(PermissionsBitField.ManageGuild)) {
-            let emb = await bot.embedManager.getErrorEmbed();
+            let emb = await bot.embedHelper.getErrorEmbed();
             emb.setTitle("Error")
             emb.setDescription("You require the \`MANAGE_SERVER\` or \``ADMINISTRATOR\` permissions to run this command.");
 
@@ -26,7 +26,7 @@ module.exports = {
 
         // Channel type must be a text channel.
         if (channel.type !== 0) {
-            let emb = await bot.embedManager.getErrorEmbed();
+            let emb = await bot.embedHelper.getErrorEmbed();
             emb.setTitle("Error")
             emb.setDescription("Channel type must be text channel.");
 

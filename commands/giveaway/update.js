@@ -18,7 +18,7 @@ module.exports = {
 
     // Guard: Check if member has the required permissions
     if (!interaction.member.permissions.has(PermissionsBitField.ManageGuild)) {
-      let emb = await bot.embedManager.getBaseEmbed();
+      let emb = await bot.embedHelper.getBaseEmbed();
       emb.setTitle("Error");
       emb.setDescription("You require the `MANAGE_SERVER` or `ADMINISTRATOR` permissions to run this command.");
       return await interaction.reply({ embeds: [emb], ephemeral: true });

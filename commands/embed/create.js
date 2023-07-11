@@ -5,13 +5,13 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('create')
         .setDescription('Create a custom embed to use')
-        .setDMPermission(true)
+        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionsBitField.ManageGuild),
 
     async execute(interaction, bot) {
         // Guard: Check if member has perms to run cmd
         if (!await interaction.member.permissions.has(PermissionsBitField.ManageGuild)) {
-            let emb = await bot.embedManager.getErrorEmbed();
+            let emb = await bot.embedHelper.getErrorEmbed();
             emb.setTitle("Error")
             emb.setDescription("You require the \`MANAGE_SERVER\` or \``ADMINISTRATOR\` permissions to run this command.");
 
@@ -63,11 +63,11 @@ module.exports = {
                 embedData = embedData.toJSON();
                 // Add the name proptery to it so once we get all embeds for a guild, we can choose the one we want with its name
                 embedData.name = embedName;
-                let newEmbedsArray = await guild.embeds.push(embedData);
-                await bot.databaseManager.updateObject('guild', { guildId: await interaction.guild.id, update: { embeds: newEmbedsArray } });
+                await guild.embeds.push(embedData);
+                await bot.databaseManager.updateObject('guild', { guildId: await interaction.guild.id, update: { embeds: guild.embeds } });
 
                 // Send the final embed message
-                await message.edit({ content: `Embed created with name \`${embedName}\`! Post it by running \`/send\`.`, embeds: [embedData] });
+                await message.edit({ content: `${bot.CONSTANTS.emojis[Math.floor(Math.random() * bot.CONSTANTS.emojis.length)]} Embed created with name \`${embedName}\`! Post it by running \`/send\`.`, embeds: [embedData] });
                 return;
             }
 
@@ -98,10 +98,14 @@ module.exports = {
                         embedData.setColor(answer ? answer : bot.CONSTANTS.embedColor);
                         break;
                     case 3:
-                        embedData.setImage(answer);
+                        if (bot.isValidHttpUrl(answer)) {
+                            embedData.setImage(answer);
+                        }
                         break;
                     case 4:
-                        embedData.setThumbnail(answer);
+                        if (bot.isValidHttpUrl(answer)) {
+                            embedData.setThumbnail(answer);
+                        }
                         break;
                     case 5:
                         embedName = answer;
